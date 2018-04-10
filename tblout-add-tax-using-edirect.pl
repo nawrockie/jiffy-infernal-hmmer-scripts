@@ -159,6 +159,14 @@ while($line = <TBLOUT>) {
   }
 }
 close(TBLOUT);
+
+if(! $do_dirty) { 
+  unlink $tmp_edirect_in;
+  unlink $tmp_edirect_out;
+};
+
+exit 0;
+
 #################################################################
 # Subroutine:  deversion_accession_version()
 # Incept:      EPN, Fri Feb 23 11:30:19 2018
