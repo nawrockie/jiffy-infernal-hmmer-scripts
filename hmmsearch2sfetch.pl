@@ -106,6 +106,10 @@ while($line = <>) {
           }
         }
       }
+      elsif($line =~ m/^\s*\-+\s+inclusion threshold\s+\-+\s*\n*$/) {
+          # special line: '------ inclusion threshold ------'
+          ; # skip
+      }
       else { 
         die "ERROR unable to parse line in query score section: $line\n"; 
       }
