@@ -1,5 +1,5 @@
 # EPN, Tue Apr 10 06:42:41 2018
-# bpinfo-count-compensatory-and-consistent.pl:
+# esl-alistat-bpinfo-count-compensatory-and-consistent.pl:
 # Adds 10 columns to esl-alistat --bpinfo file.
 #
 use warnings;
@@ -7,7 +7,7 @@ use strict;
 use Getopt::Long;
 
 my $usage;
-$usage  = "perl bpinfo-count-compensatory-and-consistent.pl [OPTIONS] <bpinfo file>\n\n";
+$usage  = "perl esl-alistat-bpinfo-count-compensatory-and-consistent.pl [OPTIONS] <bpinfo file>\n\n";
 $usage .= "\tOPTIONS:\n";
 $usage .= "\t\t-t : print total counts, not per line counts";
 
@@ -154,16 +154,18 @@ while($line = <BPINFO>) {
       $nincons = "-";
     }
     if(! $do_total) { 
-      printf("%s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s\n", $orig_line, $nwcgu, $nwc, $ngu, $bp_A[$maxbp], $num_maxbp, $ndiff_bp, $ndiff_nt, ($mcwcgu) ? "yes" : "no", $ncomp, $ncons, $nincons);
+      printf("%s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s\n", $orig_line, $nwcgu, $nwc, $ngu, $bp_A[$maxbp], $num_maxbp, $ndiff_bp, $ndiff_nt, ($mcwcgu) ? "yes" : "no", $ncomp, $ncons, $nincons);
     }
     $total_bps++;
     $total_num_bps += $num_maxbp + $ndiff_bp;
     $total_num_maxbp += $num_maxbp;
     $total_ndiff_nt += $ndiff_nt;
     $total_ndiff_bp += $ndiff_bp;
-    $total_ncomp += $ncomp;
-    $total_ncons += $ncons;
-    $total_nincons += $nincons;
+    if($mcwcgu) { 
+      $total_ncomp += $ncomp;
+      $total_ncons += $ncons;
+      $total_nincons += $nincons;
+    }
     $total_nwcgu += $nwcgu;
     $total_nwc += $nwc;
     $total_ngu += $ngu;

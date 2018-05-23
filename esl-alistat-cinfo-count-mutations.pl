@@ -1,5 +1,5 @@
 # EPN, Tue May 22 11:46:21 2018
-# cinfo-count-mutations.pl
+# esl-alistat-cinfo-count-mutations.pl
 # Summarize an esl-alistat --cinfo DNA or RNA alignment file.
 #
 use warnings;
@@ -7,7 +7,7 @@ use strict;
 use Getopt::Long;
 
 my $usage;
-$usage  = "perl cinfo-count-mutations.pl [OPTIONS] <DNA or RNA alignment esl-alistat --cinfo output file>\n";
+$usage  = "perl esl-alistat-cinfo-count-mutations.pl [OPTIONS] <DNA or RNA alignment esl-alistat --cinfo output file>\n";
 $usage .= "\tOPTIONS:\n";
 $usage .= "\t\t--bpinfo <s>: name of bpinfo file to use to define single stranded vs paired positions\n";
 $usage .= "\t\t--frame:      break down number of changes by frame (for DNA alignments of protein coding regions)\n";
