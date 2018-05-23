@@ -1,4 +1,4 @@
-$usage = "perl prune-tblout-evalue.pl <tblout file> <E-value threshold>";
+$usage = "perl prune-tblout-evalue.pl <Infernal v1.1x tblout file> <E-value threshold>";
 
 if(scalar(@ARGV) != 2) { die $usage; }
 
