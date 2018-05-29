@@ -51,7 +51,7 @@ my $i;
 # get full lengths of all sequences (actually only used if --after)
 my $seqstat_file = $aln_file . ".a.seqstat.0";
 my @full_len_A = ();
-runCommand(sprintf("esl-seqstat -a --informat stockholm $alphabet_option $aln_file | grep ^\= > $seqstat_file", $pos-1), 1);
+runCommand(sprintf("esl-seqstat -a --informat stockholm $alphabet_option $aln_file | grep ^\= > $seqstat_file", $pos-1), 0);
 parse_seqstat_a_file($seqstat_file, \@seq_A, \@full_len_A);
 unlink $seqstat_file;
 
@@ -63,7 +63,7 @@ if($pos == 1) { # special case
 }
 else { 
   $seqstat_file = $aln_file . ".a.seqstat.1";
-  runCommand(sprintf("esl-alimask -t $rf_option $alphabet_option $aln_file 1..%d | esl-seqstat -a --informat stockholm $alphabet_option - | grep ^\= > $seqstat_file", $pos-1), 1);
+  runCommand(sprintf("esl-alimask -t $rf_option $alphabet_option $aln_file 1..%d | esl-seqstat -a --informat stockholm $alphabet_option - | grep ^\= > $seqstat_file", $pos-1), 0);
   parse_seqstat_a_file($seqstat_file, \@seq_A, \@len_A);
   unlink $seqstat_file;
 }
@@ -71,7 +71,7 @@ else {
 # run esl-alimask to truncate alignment to only one position $pos-1 to determine if it is a gap or not
 my @nongap_A = ();
 $seqstat_file = $aln_file . ".a.seqstat.2";
-runCommand("esl-alimask -t $rf_option $alphabet_option $aln_file $pos..$pos | esl-seqstat -a --informat stockholm $alphabet_option - | grep ^\= > $seqstat_file", 1);
+runCommand("esl-alimask -t $rf_option $alphabet_option $aln_file $pos..$pos | esl-seqstat -a --informat stockholm $alphabet_option - | grep ^\= > $seqstat_file", 0);
 parse_seqstat_a_file($seqstat_file, \@seq_A, \@nongap_A);
 unlink $seqstat_file;
 
