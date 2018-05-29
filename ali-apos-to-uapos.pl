@@ -10,12 +10,16 @@ my $usage;
 $usage  = "perl ali-apos-to-uapos.pl [OPTIONS] <alignment file> <alignment RF position (or just alignment position if --notrf)\n\n";
 $usage .= "\tOPTIONS:\n";
 $usage .= "\t\t--notrf:   alignment position is overall position, not nongap RF (reference) position\n";
+$usage .= "\t\t--after:   for sequences in which requested positions is a gap, output information\n";
+$usage .= "\t\t           about first nongap alignment position *after* requested position [default: *before*]\n";
 $usage .= "\t\t--protein: alignment is protein (default DNA/RNA)\n";
 
 my $do_notrf   = 0; # '1' to not operate in RF coordinate space
 my $do_protein = 0; # '1' to specify protein alignment
+my $do_after   = 0; # '1' if --after, changes output
 &GetOptions( "notrf"   => \$do_notrf, 
-             "protein" => \$do_protein);
+             "protein" => \$do_protein,
+             "after"   => \$do_after);
 
 if(scalar(@ARGV) != 2) { die $usage; }
 
@@ -40,9 +44,17 @@ unlink "$list_file";
 my $nseq = scalar(@seq_A);
 
 my @len_A = ();
-my $alphabet_option = ($do_protein) ? "--dna" : "--amino";
-my $rf_option       = ($do_notrf)   ? ""      : "--t-rf";
+my $alphabet_option = ($do_protein) ? "--amino" : "--dna";
+my $rf_option       = ($do_notrf)   ? ""        : "--t-rf";
 my $i;
+
+# get full lengths of all sequences (actually only used if --after)
+my $seqstat_file = $aln_file . ".a.seqstat.0";
+my @full_len_A = ();
+runCommand(sprintf("esl-seqstat -a --informat stockholm $alphabet_option $aln_file | grep ^\= > $seqstat_file", $pos-1), 1);
+parse_seqstat_a_file($seqstat_file, \@seq_A, \@full_len_A);
+unlink $seqstat_file;
+
 # run esl-alimask to truncate alignment ending at postion $pos-1
 if($pos == 1) { # special case
   for($i = 0; $i < $nseq; $i++) { 
@@ -50,23 +62,48 @@ if($pos == 1) { # special case
   }
 }
 else { 
-  my $seqstat_file = $aln_file . ".a.seqstat.1";
-  runCommand(sprintf("esl-alimask -t $rf_option $alphabet_option $aln_file 1..%d | esl-seqstat -a --informat stockholm $alphabet_option - | grep ^\= > $seqstat_file", $pos-1), 0);
+  $seqstat_file = $aln_file . ".a.seqstat.1";
+  runCommand(sprintf("esl-alimask -t $rf_option $alphabet_option $aln_file 1..%d | esl-seqstat -a --informat stockholm $alphabet_option - | grep ^\= > $seqstat_file", $pos-1), 1);
   parse_seqstat_a_file($seqstat_file, \@seq_A, \@len_A);
   unlink $seqstat_file;
 }
 
 # run esl-alimask to truncate alignment to only one position $pos-1 to determine if it is a gap or not
 my @nongap_A = ();
-my $seqstat_file = $aln_file . ".a.seqstat.2";
-runCommand("esl-alimask -t $rf_option $alphabet_option $aln_file $pos..$pos | esl-seqstat -a --informat stockholm $alphabet_option - | grep ^\= > $seqstat_file", 0);
+$seqstat_file = $aln_file . ".a.seqstat.2";
+runCommand("esl-alimask -t $rf_option $alphabet_option $aln_file $pos..$pos | esl-seqstat -a --informat stockholm $alphabet_option - | grep ^\= > $seqstat_file", 1);
 parse_seqstat_a_file($seqstat_file, \@seq_A, \@nongap_A);
 unlink $seqstat_file;
 
 # output 
+printf("# Explanation of columns:\n");
+printf("# seqname: name of sequence\n");
+printf("# uapos:   unaligned sequence position that aligns at alignment %s %d\n", ($do_notrf ? "position" : "RF position"), $pos);
+printf("#          if 'gap?' column is 'gap' then alignment is a gap for this sequence at position $pos\n");
+if($do_after) { 
+    printf("#          and so 'uapos' column is the first sequence position aligned after position $pos\n");
+    printf("#          or '-' if no residues exist after position $pos\n");
+}
+else { 
+    printf("#          and so 'uapos' column is the final sequence position aligned before position $pos\n");
+    printf("#          or '-' if no residues exist before position $pos\n");
+}
+printf("# gap?:    'nongap' if position $pos is not a gap in sequence, 'gap' if it is\n");
 printf("%-*s  %6s  %-6s\n", $seq_width, "#seqname", "uapos", "gap?");
+
 for($i = 0; $i < $nseq; $i++) { 
-  printf("%-*s  %6d  %-6s\n", $seq_width, $seq_A[$i], $len_A[$i] + $nongap_A[$i], ($nongap_A[$i] ? "nongap" : "gap")); 
+  my $posn2print = undef;
+  if(($do_after) && ($len_A[$i] == $full_len_A[$i])) { 
+    if($nongap_A[$i]) { die "ERROR found nongap after full sequence for sequence $seq_A[$i]\n"; }
+    $posn2print = "-";
+  }
+  elsif((! $do_after) && ($len_A[$i] == 0) && ($nongap_A[$i] == 0)) { 
+    $posn2print = "-";
+  }
+  else { 
+    $posn2print = $len_A[$i] + $nongap_A[$i];
+  }
+  printf("%-*s  %6s  %-6s\n", $seq_width, $seq_A[$i], $posn2print, ($nongap_A[$i] ? "nongap" : "gap")); 
 }
 
 #################################################################
