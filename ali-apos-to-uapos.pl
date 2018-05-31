@@ -170,7 +170,7 @@ sub parse_seqstat_a_file {
   my ($equal, $seqname, $length);
   while($line = <IN>) { 
     chomp $line;
-    if($line =~ /^\=\s+\S+\s+\d+\s*$/) { 
+    if($line =~ /^\=\s+\S+\s+\d+\s*.*$/) { 
       ($equal, $seqname, $length) = split(/\s+/, $line);
     }
     elsif($line =~ /^\=\s+0\s*$/) { 
