@@ -10,6 +10,10 @@ use strict;
 my $usage;
 $usage  = "perl ali-pfam-sindi2dot-bracket.pl <alignment file in Pfam format with per-sequence SS annotation>\n\n";
 
+if(scalar(@ARGV) != 1) { die $usage; }
+
+my ($aln_file) = (@ARGV);
+
 my %seen_H      = ();    # key is sequence name, used to check to make sure we are in Pfam format
 my %seen_ss_H   = ();    # key is sequence name, used to check to make sure we are in Pfam format
 my @notgap_A    = ();    # array 1..$i..alen-1, value is '0' if position $i is a gap for current sequence, '1' if it is not a gap
@@ -25,6 +29,9 @@ my $i           = 0;     # counter over alignment positions
 my $left_ct     = 0;     # number of left basepair halves seen for current SS string
 my $right_ct    = 0;     # number of right basepair halves seen for current SS string
 my $line        = undef; # a line of the file
+
+open(IN, $aln_file) || die "ERROR unable to open $aln_file"; 
+
 while(my $line = <>) { 
   if($line !~ /^\#/) { 
     if($line =~ /(\S+)\s+(\S+)/) { 
@@ -88,6 +95,8 @@ while(my $line = <>) {
     print(">$seqname\n$gapless_seq\n$gapless_ss\n");
   }
 }
+close(IN);
+
 # sanity check
 foreach $seqname (sort keys %seen_H) { 
   if((! exists $seen_ss_H{$seqname}) || ($seen_ss_H{$seqname} != 1)) { 
