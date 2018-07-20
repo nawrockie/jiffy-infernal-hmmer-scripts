@@ -1,4 +1,4 @@
-$usage = "perl prune-hmmsearch-tblout.pl <tblout file> <'S' or 'E' for bit score or E-value threshold> <threshold>";
+$usage = "perl hmmsearch-tblout-prune.pl <tblout file> <'S' or 'E' for bit score or E-value threshold> <threshold>";
 
 if(scalar(@ARGV) != 3) { die $usage; }
 

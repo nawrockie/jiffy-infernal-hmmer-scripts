@@ -1,4 +1,4 @@
-$usage = "perl parse-alipid.pl <input list of accessions to find nearest neighbors for> <alipid output file> <output root>";
+$usage = "perl esl-alipid-parse.pl <input list of accessions to find nearest neighbors for> <alipid output file> <output root>";
 
 if(scalar(@ARGV) != 3) { die $usage; };
 
