@@ -17,8 +17,10 @@ my $max = undef;
 &GetOptions( "min=s" => \$min,
              "max=s" => \$max);
 
+if(scalar(@ARGV) != 1) { die $usage; }
+
 if((! defined $min) && (! defined $max)) { 
-  die "ERROR either --min or --max must be set";
+  die "ERROR either --min or --max must be set\n$usage";
 }
 if(! defined $min) { $min = 0; }
 if(! defined $max) { $max = -1; }
