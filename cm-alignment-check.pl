@@ -61,6 +61,9 @@ if($diff_err_str ne "") {
 
 if($fail == 0) { 
   printf("Check successful: $in_cmfile created alignment in $in_alnfile ($ndiff_tokens floating point values differed but within allowed threshold of $thresh)\n");
+  unlink $tmp_cm1;
+  unlink $tmp_cm2;
+  unlink $in_cm2;
 }
 
 exit $fail;
