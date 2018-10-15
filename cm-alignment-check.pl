@@ -23,6 +23,9 @@ my ($in_cmfile, $in_alnfile) = @ARGV;
 # parse cm file
 my ($in_cksum, $in_cmbuild_opts) = parse_cmfile($in_cmfile);
 
+printf("Input CM file:        $in_cmfile\n");
+printf("Input Alignment file: $in_alnfile\n");
+
 # build temporary CM
 if($in_cmbuild_opts !~ m/-F\s+/) { 
   $in_cmbuild_opts .= " -F ";
