@@ -5,7 +5,7 @@ use Getopt::Long;
 my $usage;
 $usage  = "hmmsearch2sfetch.pl\n\n";
 $usage .= "Usage:\n\n";
-$usage .= "hmmsearch2sfetch.pl [OPTIONS] <hmmsearch file>";
+$usage .= "hmmsearch2sfetch.pl [OPTIONS] <hmmsearch file>\n";
 $usage .= "\tOPTIONS:\n";
 $usage .= "\t\t-s     : fetch full sequences [default: domains]\n";
 $usage .= "\t\t-t <x> : set minimum bit score for domain to fetch (or sequence if -s)\n";

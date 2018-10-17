@@ -3,7 +3,7 @@ use warnings;
 use Getopt::Long;
 
 my $opt_thresh = undef;
-my $thresh = 0.001; # default, overwritten with --thresh
+my $thresh = 0.00100001; # default, overwritten with --thresh
 
 my $usage;
 $usage = "cm-alignment-check.pl\n\n";
@@ -118,9 +118,9 @@ sub parse_cmfile {
     elsif($line =~ m/^COM\s+\[\d+]\s+.*(cmbuild.+)$/) {
       # parse out cmbuild options used
       $ncmbuild_read++;
-      if($ncmbuild_read > 2) { 
-        die "ERROR read more than two COM cmbuild lines, CM file must have exactly 1 CM in it";
-      }
+      #if($ncmbuild_read > 2) { 
+      #  die "ERROR read more than two COM cmbuild lines, CM file must have exactly 1 CM in it";
+      #}
       my $cmbuild_cmd = $1;
       my @cmbuild_A = split(/\s+/, $cmbuild_cmd);
       my $tmp_cmbuild_opts = "";
