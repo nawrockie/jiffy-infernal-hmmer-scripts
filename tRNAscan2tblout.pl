@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 # tRNAscan-SE-v2.0 output:
 #Sequence   		tRNA   	Bounds 	tRNA	Anti	Intron Bounds	Inf	      
 #Name       	tRNA #	Begin  	End    	Type	Codon	Begin	End	Score	Note

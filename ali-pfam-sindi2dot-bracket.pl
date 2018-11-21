@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 # EPN, Tue Jul  3 06:59:56 2018
 # ali-pfam-sindi2dot-bracket.pl
 #

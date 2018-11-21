@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 $usage = "perl cmsearch-tblout-prune.pl <Infernal v1.1x tblout file> <'S' or 'E' for bit score or E-value threshold> <threshold>";
 
 if(scalar(@ARGV) != 3) { die $usage; }

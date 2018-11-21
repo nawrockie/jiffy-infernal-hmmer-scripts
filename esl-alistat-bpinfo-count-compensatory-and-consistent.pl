@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 # EPN, Tue Apr 10 06:42:41 2018
 # esl-alistat-bpinfo-count-compensatory-and-consistent.pl:
 # Adds 10 columns to esl-alistat --bpinfo file.

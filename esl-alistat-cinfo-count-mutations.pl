@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 # EPN, Tue May 22 11:46:21 2018
 # esl-alistat-cinfo-count-mutations.pl
 # Summarize an esl-alistat --cinfo DNA or RNA alignment file.

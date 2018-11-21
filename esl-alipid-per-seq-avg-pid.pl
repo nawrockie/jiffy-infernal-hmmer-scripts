@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 $usage = "perl esl-alipid-per-seq-avg-pid.pl <alipid output file>";
 
 if(scalar(@ARGV) != 1) { die $usage; };

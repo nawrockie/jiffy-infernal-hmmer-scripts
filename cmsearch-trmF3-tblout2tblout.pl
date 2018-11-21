@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 ## cmsearch --trmF3 --tblout format:
 ##sequence      modelname         score    start      end strand bounds ovp      seqlen
 ##------------- ---------------- ------ -------- -------- ------ ------ --- -----------

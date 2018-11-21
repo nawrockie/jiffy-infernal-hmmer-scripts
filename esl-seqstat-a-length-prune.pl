@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 # EPN, Fri Jul 20 10:03:34 2018
 # esl-seqstat-a-prune-by-length.pl
 # Prunes sequences in esl-seqstat -a output based on length.

@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 # Total CPU time:2.51u 0.30s 00:00:02.80 Elapsed: 00:00:04.90
 $tot_ct = 0;
 $time_ct = 0;
