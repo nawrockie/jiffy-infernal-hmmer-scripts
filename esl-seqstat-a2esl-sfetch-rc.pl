@@ -1,5 +1,4 @@
-my $usage = "perl esl-seqstat-a2esl-sfetch-rc.pl <esl-seqstat -a output>\n\nesl-seqstat -a <seqfile> | perl esl-seqstat-a2esl-sfetch-rc.pl | esl-sfetch -f <seqfile> - > <revcomp-seqfile>\n";
-if(scalar(@ARGV) != 1) { die $usage; }
+# perl esl-seqstat-a2esl-sfetch-rc.pl <esl-seqstat -a output>\n\nesl-seqstat -a <seqfile> | perl esl-seqstat-a2esl-sfetch-rc.pl | esl-sfetch -Cf <seqfile> - > <revcomp-seqfile>\n";
 while($line = <>) { 
   if($line =~ /^\=/) { 
     chomp $line;
