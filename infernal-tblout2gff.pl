@@ -2,6 +2,9 @@
 # 
 # infernal-tblout2gff.pl: convert cmsearch or cmscan tblout files to GFF format
 #                        
+# ref: https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
+# an important point of above ref:
+# "Start is always less than or equal to end"
 #
 # EPN, Fri Jun  7 11:07:38 2019
 # 
@@ -40,7 +43,7 @@ my $do_no_attributes  = 0; # set to '1' if --none
              "T=s"       => \$minscore,
              "E=s"       => \$maxevalue,
              "all"       => \$do_all_attributes,
-             "none"      => \$do_no_attributes); 
+             "none"      => \$do_no_attributes);
 
 if(scalar(@ARGV) != 1) { die $usage; }
 my ($tblout_file) = @ARGV;
@@ -183,15 +186,15 @@ while($line = <IN>) {
         }
       }
       printf("%s\t%s\t%s\t%d\t%d\t%.1f\t%s\t%s\t%s\n", 
-             $seqname,     # token 1: 'sequence' (sequence name)
-             $source,      # token 2: 'source'
-             $mdlname,     # token 3: 'feature' (model name) you may want to change this to 'ncRNA'
-             $seqfrom,     # token 4: 'start' in coordinate space [1..seqlen] 
-             $seqto,       # token 5: 'end' in coordinate space [1..seqlen] 
-             $score,       # token 6: 'score' bit score
-             $strand,      # token 7: 'strand' ('+' or '-')
-             ".",          # token 8: 'phase' irrelevant for noncoding RNAs
-             $attributes); # token 9: attributes, currently only E-value
+             $seqname,                             # token 1: 'sequence' (sequence name)
+             $source,                              # token 2: 'source'
+             $mdlname,                             # token 3: 'feature' (model name) you may want to change this to 'ncRNA'
+             ($strand eq "+") ? $seqfrom : $seqto, # token 4: 'start' in coordinate space [1..seqlen], must be <= 'end'
+             ($strand eq "+") ? $seqfrom : $seqto, # token 5: 'end' in coordinate space [1..seqlen], must be >= 'start'
+             $score,                               # token 6: 'score' bit score
+             $strand,                              # token 7: 'strand' ('+' or '-')
+             ".",                                  # token 8: 'phase' irrelevant for noncoding RNAs
+             $attributes);                         # token 9: attributes, currently only E-value
     }
   }
 }
