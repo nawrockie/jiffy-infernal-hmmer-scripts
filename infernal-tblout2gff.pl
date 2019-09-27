@@ -26,8 +26,9 @@ $usage .= "\t\t-T <n>       : minimum bit score to include is <n>\n";
 $usage .= "\t\t-E <x>       : maximum E-value to include is <x>\n";
 $usage .= "\t\t--cmscan     : tblout file was created by cmscan\n";
 $usage .= "\t\t--fmt2       : tblout file was created with cmscan --fmt 2 option\n";
-$usage .= "\t\t--all        : output all info in 'attributes' column [default: E-value]\n";
-$usage .= "\t\t--none       : output no info in 'attributes' column  [default: E-value]\n";
+$usage .= "\t\t--all        : output all info in 'attributes' column   [default: E-value]\n";
+$usage .= "\t\t--none       : output no info in 'attributes' column    [default: E-value]\n";
+$usage .= "\t\t--desc       : output desc field in 'attributes' column [default: E-value]\n";
 
 my $do_minscore = 0;       # set to '1' if -T used
 my $do_maxevalue = 0;      # set to '1' if -E used
@@ -37,13 +38,15 @@ my $do_cmscan  = 0;        # set to '1' if --cmscan used
 my $do_fmt2    = 0;        # set to '1' if --fmt
 my $do_all_attributes = 0; # set to '1' if --all
 my $do_no_attributes  = 0; # set to '1' if --none
+my $do_de_attributes  = 0; # set to '1' if --desc
 
 &GetOptions( "cmscan"    => \$do_cmscan,
              "fmt2"      => \$do_fmt2,
              "T=s"       => \$minscore,
              "E=s"       => \$maxevalue,
              "all"       => \$do_all_attributes,
-             "none"      => \$do_no_attributes);
+             "none"      => \$do_no_attributes,
+             "desc"      => \$do_de_attributes);
 
 if(scalar(@ARGV) != 1) { die $usage; }
 my ($tblout_file) = @ARGV;
@@ -55,6 +58,12 @@ if($do_minscore && $do_maxevalue) {
 }
 if(($do_all_attributes) && ($do_no_attributes)) { 
   die "ERROR, --all and --none cannot be used in combination. Pick one.";
+}
+if(($do_all_attributes) && ($do_de_attributes)) { 
+  die "ERROR, --all and --desc cannot be used in combination. Pick one.";
+}
+if(($do_no_attributes) && ($do_de_attributes)) { 
+  die "ERROR, --none and --desc cannot be used in combination. Pick one.";
 }
 if(($do_fmt2) && (! $do_cmscan)) { 
   die "ERROR, --fmt2 only makes sense in combination with --cmscan"; 
@@ -185,16 +194,22 @@ while($line = <IN>) {
           $attributes .= ";seqaccn:$seqaccn;mdlaccn:$mdlaccn;mdl:$mdl;mdlfrom:$mdlfrom;mdlto:$mdlto;trunc:$trunc;pass:$pass;gc:$gc;bias:$bias;inc:$inc;desc:$desc";
         }
       }
+      elsif($do_no_attributes) { 
+        $attributes = "-";
+      }
+      elsif($do_de_attributes) { 
+        $attributes = $desc;
+      }
       printf("%s\t%s\t%s\t%d\t%d\t%.1f\t%s\t%s\t%s\n", 
              $seqname,                             # token 1: 'sequence' (sequence name)
              $source,                              # token 2: 'source'
              $mdlname,                             # token 3: 'feature' (model name) you may want to change this to 'ncRNA'
              ($strand eq "+") ? $seqfrom : $seqto, # token 4: 'start' in coordinate space [1..seqlen], must be <= 'end'
-             ($strand eq "+") ? $seqfrom : $seqto, # token 5: 'end' in coordinate space [1..seqlen], must be >= 'start'
+             ($strand eq "+") ? $seqto : $seqfrom, # token 5: 'end' in coordinate space [1..seqlen], must be >= 'start'
              $score,                               # token 6: 'score' bit score
              $strand,                              # token 7: 'strand' ('+' or '-')
              ".",                                  # token 8: 'phase' irrelevant for noncoding RNAs
-             $attributes);                         # token 9: attributes, currently only E-value
+             $attributes);                         # token 9: attributes, currently only E-value, unless --all, --none or --desc
     }
   }
 }
