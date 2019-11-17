@@ -58,7 +58,7 @@ while(my $line = <>) {
     if($do_dotbracket) { 
       $ss =~ s/[\{\[\<\(]/\(/g;
       $ss =~ s/[\}\]\>\)]/\)/g;
-      $ss =~ s/[\:\_\,\-]/\./g;
+      $ss =~ s/[\:\_\,\-\~]/\./g;
     }
     print(">SS_cons\n$ss\n");
   }
