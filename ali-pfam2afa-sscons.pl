@@ -25,9 +25,6 @@ my %seen_H = ();
              "dotbracket" => \$do_dotbracket);
 
 if(scalar(@ARGV) != 1) { die $usage; }
-my ($aln_file) = (@ARGV);
-
-open(IN, $aln_file) || die "ERROR unable to open $aln_file"; 
 
 my %desc_H = ();
 while(my $line = <>) { 
@@ -44,7 +41,7 @@ while(my $line = <>) {
       }
       print("\n");
       if($do_dotbracket) { 
-        $seq =~ s/[^A-Z]/./g;
+        $seq =~ s/[^A-Za-z]/./g;
       }
       if($do_upper) {
         $seq =~ tr/a-z/A-Z/;
@@ -63,4 +60,3 @@ while(my $line = <>) {
     print(">SS_cons\n$ss\n");
   }
 }
-close(IN);
