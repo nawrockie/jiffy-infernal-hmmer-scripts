@@ -42,10 +42,12 @@ $usage .= "Usage:\n";
 $usage .= "tRNAscan2tblout.pl [OPTIONS] <tRNAscan -o output (can be multiple files concatenated)>\n";
 $usage .= "\tOPTIONS:\n";
 $usage .= "\t\t-query <s> : set query to <s> instead of tRNAscan-SE\n";
+$usage .= "\t\t-type      : set query to type field instead of tRNAscan-SE\n";
 
 my $query = undef;
-
-&GetOptions( "query=s"  => \$query); 
+my $do_type = 0;
+&GetOptions( "query=s"  => \$query,
+             "type"     => \$do_type);
 if(! defined $query) { $query = "tRNAscan-SE"; }
 
 if(scalar(@ARGV) != 1) { die $usage; }
@@ -79,6 +81,7 @@ while(my $line = <IN>) {
     }
     if($start <= $end) { $strand = "+"; }
     else               { $strand = "-"; }
+    if($do_type) { $query = $type };
     printf("$name - $query - cm - - $start $end $strand no 1 ? 0.0 $score 0 ! $desc\n");
   }
 }
