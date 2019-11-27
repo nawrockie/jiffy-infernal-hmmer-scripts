@@ -211,6 +211,8 @@ while($line = <IN>) {
         $attributes = $desc;
       }
       if(defined $extra) { 
+        if($attributes eq "-")       { $attributes = ""; }
+        elsif($attributes !~ m/\;$/) { $attributes .= ";"; }
         $attributes .= $extra . ";";
       }
       printf("%s\t%s\t%s\t%d\t%d\t%.1f\t%s\t%s\t%s\n", 
