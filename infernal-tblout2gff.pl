@@ -29,6 +29,9 @@ $usage .= "\t\t--fmt2       : tblout file was created with cmscan --fmt 2 option
 $usage .= "\t\t--all        : output all info in 'attributes' column   [default: E-value]\n";
 $usage .= "\t\t--none       : output no info in 'attributes' column    [default: E-value]\n";
 $usage .= "\t\t--desc       : output desc field in 'attributes' column [default: E-value]\n";
+$usage .= "\t\t--version <s>: append \"-<s>\" to 'source' column\n";
+$usage .= "\t\t--extra <s>  : append \"<s>;\" to 'attributes' column\n";
+$usage .= "\t\t--hidedesc   : do not includ \"desc\:\" prior to desc value in 'attributes' column\n";
 
 my $do_minscore = 0;       # set to '1' if -T used
 my $do_maxevalue = 0;      # set to '1' if -E used
@@ -39,6 +42,9 @@ my $do_fmt2    = 0;        # set to '1' if --fmt
 my $do_all_attributes = 0; # set to '1' if --all
 my $do_no_attributes  = 0; # set to '1' if --none
 my $do_de_attributes  = 0; # set to '1' if --desc
+my $version = undef;       # defined if --version used
+my $extra = undef;         # defined if --extra used
+my $do_hidedesc = 0;       # set to 1 if --hidedesc used
 
 &GetOptions( "cmscan"    => \$do_cmscan,
              "fmt2"      => \$do_fmt2,
@@ -46,7 +52,10 @@ my $do_de_attributes  = 0; # set to '1' if --desc
              "E=s"       => \$maxevalue,
              "all"       => \$do_all_attributes,
              "none"      => \$do_no_attributes,
-             "desc"      => \$do_de_attributes);
+             "desc"      => \$do_de_attributes,
+             "version=s" => \$version, 
+             "extra=s"   => \$extra,
+             "hidedesc"  => \$do_hidedesc);
 
 if(scalar(@ARGV) != 1) { die $usage; }
 my ($tblout_file) = @ARGV;
@@ -73,6 +82,7 @@ if(! -e $tblout_file) { die "ERROR tblout file $tblout_file does not exist"; }
 if(! -s $tblout_file) { die "ERROR tblout file $tblout_file is empty"; }
 
 my $source = ($do_cmscan) ? "cmscan" : "cmsearch";
+if(defined $version) { $source .= "-" . $version; }
 
 open(IN, $tblout_file) || die "ERROR unable to open $tblout_file for reading"; 
 my $line;
@@ -188,10 +198,10 @@ while($line = <IN>) {
       my $attributes = "evalue:" . $evalue; # default to just evalue
       if($do_all_attributes) { 
         if($do_fmt2) { 
-          $attributes .= ";idx=$idx;seqaccn:$seqaccn;mdlaccn:$mdlaccn;clan:$clan;mdl:$mdl;mdlfrom:$mdlfrom;mdlto:$mdlto;trunc:$trunc;pass:$pass;gc:$gc;bias:$bias;inc:$inc;olp:$olp;anyidx:$anyidx;anyfrct1:$anyfrct1;anyfrct2:$anyfrct2;winidx:$winidx;winfrct1:$winfrct1;winfrct2:$winfrct2;desc:$desc";
+          $attributes .= sprintf(";idx=$idx;seqaccn:$seqaccn;mdlaccn:$mdlaccn;clan:$clan;mdl:$mdl;mdlfrom:$mdlfrom;mdlto:$mdlto;trunc:$trunc;pass:$pass;gc:$gc;bias:$bias;inc:$inc;olp:$olp;anyidx:$anyidx;anyfrct1:$anyfrct1;anyfrct2:$anyfrct2;winidx:$winidx;winfrct1:$winfrct1;winfrct2:$winfrct2;%s$desc", ($do_hidedesc ? "" : "desc:"));
         }
         else { 
-          $attributes .= ";seqaccn:$seqaccn;mdlaccn:$mdlaccn;mdl:$mdl;mdlfrom:$mdlfrom;mdlto:$mdlto;trunc:$trunc;pass:$pass;gc:$gc;bias:$bias;inc:$inc;desc:$desc";
+          $attributes .= sprintf(";seqaccn:$seqaccn;mdlaccn:$mdlaccn;mdl:$mdl;mdlfrom:$mdlfrom;mdlto:$mdlto;trunc:$trunc;pass:$pass;gc:$gc;bias:$bias;inc:$inc;%s$desc", ($do_hidedesc ? "" : "desc:"));
         }
       }
       elsif($do_no_attributes) { 
@@ -199,6 +209,9 @@ while($line = <IN>) {
       }
       elsif($do_de_attributes) { 
         $attributes = $desc;
+      }
+      if(defined $extra) { 
+        $attributes .= $extra . ";";
       }
       printf("%s\t%s\t%s\t%d\t%d\t%.1f\t%s\t%s\t%s\n", 
              $seqname,                             # token 1: 'sequence' (sequence name)
