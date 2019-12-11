@@ -25,6 +25,7 @@ $usage .= "\tOPTIONS:\n";
 $usage .= "\t\t-T <n>       : minimum bit score to include is <n>\n";
 $usage .= "\t\t-E <x>       : maximum E-value to include is <x>\n";
 $usage .= "\t\t--cmscan     : tblout file was created by cmscan\n";
+$usage .= "\t\t--source <s> : specify 'source' field should be <s> (e.g. tRNAscan-SE)\n";
 $usage .= "\t\t--fmt2       : tblout file was created with cmscan --fmt 2 option\n";
 $usage .= "\t\t--all        : output all info in 'attributes' column   [default: E-value]\n";
 $usage .= "\t\t--none       : output no info in 'attributes' column    [default: E-value]\n";
@@ -45,11 +46,13 @@ my $do_de_attributes  = 0; # set to '1' if --desc
 my $version = undef;       # defined if --version used
 my $extra = undef;         # defined if --extra used
 my $do_hidedesc = 0;       # set to 1 if --hidedesc used
+my $opt_source = undef;    # set to <s> if --source <s> used
 
-&GetOptions( "cmscan"    => \$do_cmscan,
-             "fmt2"      => \$do_fmt2,
-             "T=s"       => \$minscore,
+&GetOptions( "T=s"       => \$minscore,
              "E=s"       => \$maxevalue,
+             "cmscan"    => \$do_cmscan,
+             "source=s"  => \$opt_source,
+             "fmt2"      => \$do_fmt2,
              "all"       => \$do_all_attributes,
              "none"      => \$do_no_attributes,
              "desc"      => \$do_de_attributes,
@@ -77,12 +80,16 @@ if(($do_no_attributes) && ($do_de_attributes)) {
 if(($do_fmt2) && (! $do_cmscan)) { 
   die "ERROR, --fmt2 only makes sense in combination with --cmscan"; 
 }
+if((defined $opt_source) && (defined $version)) { 
+  die "ERROR, --source and --version are incompatible";
+}
 
 if(! -e $tblout_file) { die "ERROR tblout file $tblout_file does not exist"; }
 if(! -s $tblout_file) { die "ERROR tblout file $tblout_file is empty"; }
 
 my $source = ($do_cmscan) ? "cmscan" : "cmsearch";
-if(defined $version) { $source .= "-" . $version; }
+if(defined $version)    { $source .= "-" . $version; }
+if(defined $opt_source) { $source = $opt_source; }
 
 open(IN, $tblout_file) || die "ERROR unable to open $tblout_file for reading"; 
 my $line;

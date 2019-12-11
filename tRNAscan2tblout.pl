@@ -125,7 +125,7 @@ while(my $line = <IN>) {
     my $line2 = <IN>;
     my $line3 = <IN>;
     my $cur_format = determine_format($line1, $line2);
-    if((defined $format) && ($cur_format != $format)) { 
+    if((defined $format) && ($cur_format ne $format)) { 
       die "ERROR detected multiple different formats in file (both $format and $cur_format).\nSee code for explanation of formats.\n"; 
     }
     $format = $cur_format;
