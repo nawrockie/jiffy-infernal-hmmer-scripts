@@ -195,13 +195,13 @@ while($line = <IN>) {
       ; # skip
     }
     else { 
-      my $attributes = "evalue:" . $evalue; # default to just evalue
+      my $attributes = "evalue=" . $evalue; # default to just evalue
       if($do_all_attributes) { 
         if($do_fmt2) { 
-          $attributes .= sprintf(";idx=$idx;seqaccn:$seqaccn;mdlaccn:$mdlaccn;clan:$clan;mdl:$mdl;mdlfrom:$mdlfrom;mdlto:$mdlto;trunc:$trunc;pass:$pass;gc:$gc;bias:$bias;inc:$inc;olp:$olp;anyidx:$anyidx;anyfrct1:$anyfrct1;anyfrct2:$anyfrct2;winidx:$winidx;winfrct1:$winfrct1;winfrct2:$winfrct2;%s$desc", ($do_hidedesc ? "" : "desc:"));
+          $attributes .= sprintf(";idx=$idx;seqaccn=$seqaccn;mdlaccn=$mdlaccn;clan=$clan;mdl=$mdl;mdlfrom=$mdlfrom;mdlto=$mdlto;trunc=$trunc;pass=$pass;gc=$gc;bias=$bias;inc=$inc;olp=$olp;anyidx=$anyidx;anyfrct1=$anyfrct1;anyfrct2=$anyfrct2;winidx=$winidx;winfrct1=$winfrct1;winfrct2=$winfrct2;%s$desc", ($do_hidedesc ? "" = "desc="));
         }
         else { 
-          $attributes .= sprintf(";seqaccn:$seqaccn;mdlaccn:$mdlaccn;mdl:$mdl;mdlfrom:$mdlfrom;mdlto:$mdlto;trunc:$trunc;pass:$pass;gc:$gc;bias:$bias;inc:$inc;%s$desc", ($do_hidedesc ? "" : "desc:"));
+          $attributes .= sprintf(";seqaccn=$seqaccn;mdlaccn=$mdlaccn;mdl=$mdl;mdlfrom=$mdlfrom;mdlto=$mdlto;trunc=$trunc;pass=$pass;gc=$gc;bias=$bias;inc=$inc;%s$desc", ($do_hidedesc ? "" : "desc="));
         }
       }
       elsif($do_no_attributes) { 
