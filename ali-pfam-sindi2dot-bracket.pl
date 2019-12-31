@@ -7,13 +7,41 @@
 #
 use warnings;
 use strict;
+use Getopt::Long;
 
 my $usage;
-$usage  = "perl ali-pfam-sindi2dot-bracket.pl <alignment file in Pfam format with per-sequence SS annotation>\n\n";
+$usage  = "ali-pfam-sindi2dot-bracket.pl\n\n";
+$usage .= "Usage:\n\n";
+$usage .= "ali-pfam-sindi2dot-bracket.pl\n";
+$usage .= "\tOPTIONS:\n";
+$usage .= "\t\t-a: keep sequences in aligned format (do not remove gaps) [default: do remove gaps]\n";
+$usage .= "\t\t-l: do not convert sequences to all uppercase [default: do]\n";
+$usage .= "\t\t-w: leave SS in current format (possibly WUSS)\n";
+$usage .= "\t\t-c: include consensus structure as additional 'sequence' [default: do not]\n";
+$usage .= "\t\t-n: name individual secondary structures [default: do not]\n";
+
+my $opt_a = 0; # set to '1' if -a used
+my $opt_l = 0; # set to '1' if -l used
+my $opt_w = 0; # set to '1' if -w used
+my $opt_c = 0; # set to '1' if -c used
+my $opt_n = 0; # set to '1' if -n used
+
+&GetOptions( "a"  => \$opt_a,
+             "l"  => \$opt_l,
+             "w"  => \$opt_w,
+             "c"  => \$opt_c,
+             "n"  => \$opt_n);
 
 if(scalar(@ARGV) != 1) { die $usage; }
 
 my ($aln_file) = (@ARGV);
+
+# set defaults
+my $do_gapless    = ($opt_a) ? 0 : 1;
+my $do_upper      = ($opt_l) ? 0 : 1;
+my $do_dotbracket = ($opt_w) ? 0 : 1;
+my $do_sscons     = ($opt_c) ? 1 : 0;
+my $do_name       = ($opt_n) ? 1 : 0;
 
 my %seen_H      = ();    # key is sequence name, used to check to make sure we are in Pfam format
 my %seen_ss_H   = ();    # key is sequence name, used to check to make sure we are in Pfam format
@@ -30,6 +58,8 @@ my $i           = 0;     # counter over alignment positions
 my $left_ct     = 0;     # number of left basepair halves seen for current SS string
 my $right_ct    = 0;     # number of right basepair halves seen for current SS string
 my $line        = undef; # a line of the file
+my $ss_name     = undef; # name for current SS string, will always be "" unless -n used
+my $is_sscons   = 0;     # flag for whether current SS string is indi SS or SS_cons
 
 open(IN, $aln_file) || die "ERROR unable to open $aln_file"; 
 
@@ -49,6 +79,7 @@ while(my $line = <>) {
       for($i = 0; $i < scalar(@seq_A); $i++) { 
         if($seq_A[$i] eq "-") { 
           $notgap_A[$i] = 0; 
+          if(! $do_gapless) { $gapless_seq .= $seq_A[$i]; }
         }
         else { 
           $gapless_seq .= $seq_A[$i];
@@ -56,45 +87,63 @@ while(my $line = <>) {
         }
       }
       # convert lowercase to uppercase
-      $gapless_seq =~ tr/a-z/A-Z/;
+      if($do_upper) { $gapless_seq =~ tr/a-z/A-Z/; }
     }
   }      
-  elsif($line =~ m/^\#=GR\s+(\S+)\s+SS\s+(\S+)/) { 
-    ($seqname_ss, $ss) = ($1, $2);
-    $seen_ss_H{$seqname_ss} = 1;
-    if($seqname_ss ne $seqname) { 
-      die "ERROR did not read SS line for $seqname in expected order, read SS for $seqname_ss instead"; 
+  elsif($line =~ m/^\#=/) { # check all #= lines to see if they're either indi SS or SS_cons
+    ($ss, $seqname_ss) = (undef, undef); 
+    if($line =~ /^\#=GR\s+(\S+)\s+SS\s+(\S+)/) { # indi SS line
+      ($seqname_ss, $ss) = ($1, $2);
+      $seen_ss_H{$seqname_ss} = 1;
+      if($seqname_ss ne $seqname) { 
+        die "ERROR did not read SS line for $seqname in expected order, read SS for $seqname_ss instead"; 
+      }
+      $is_sscons = 0;
     }
-    # remove gaps, creating SS as we go, we need @gap_A to do this because SS string does not indicate where gaps are
-    $left_ct  = 0;
-    $right_ct = 0;
-    $gapless_ss = "";
-    @ss_A = split("", $ss);
-    for($i = 0; $i < scalar(@ss_A); $i++) { 
-      if($notgap_A[$i] == 1) { 
-        if($ss_A[$i] =~ m/[\{\[\<\(]/) {
-          $left_ct++;
-          $gapless_ss .= "(";
-        }
-        elsif($ss_A[$i] =~ m/[\}\]\>\)]/) {
-          $right_ct++;
-          $gapless_ss .= ")";
-        }
-        else { 
-          $gapless_ss .= ".";
+    elsif($line =~ /^\#=GC\s+SS_cons\s+(\S+)/) { # SS_cons line
+      $ss = ($1);
+      $seqname_ss = "SS_cons";
+      $is_sscons = 1;
+    }
+    if(defined $ss) { # only true if either an indi SS line or SS_cons line
+      # remove gaps, creating SS as we go, we need @gap_A to do this because SS string does not indicate where gaps are
+      $left_ct  = 0;
+      $right_ct = 0;
+      $gapless_ss = "";
+      @ss_A = split("", $ss);
+      for($i = 0; $i < scalar(@ss_A); $i++) { 
+        if(($notgap_A[$i] == 1) || (! $do_gapless)) { 
+          if($ss_A[$i] =~ m/[\{\[\<\(]/) {
+            $left_ct++;
+            $gapless_ss .= ($do_dotbracket) ? "(" : $ss_A[$i];
+          }
+          elsif($ss_A[$i] =~ m/[\}\]\>\)]/) {
+            $right_ct++;
+            $gapless_ss .= ($do_dotbracket) ? ")" : $ss_A[$i];
+          }
+          else { 
+            $gapless_ss .= ($do_dotbracket) ? "." : $ss_A[$i];
+          }
         }
       }
-    }
-    if(length($gapless_seq) != length($gapless_ss)) { 
-      die "ERROR problem removing gaps from SS for $seqname, unexpected length " . length($gapless_seq) . " != " . length($gapless_ss) . "\n";
-    }
-    if($left_ct != $right_ct) { 
-      die "ERROR problem with SS for $seqname, num left parentheses ($left_ct) not equal to num right parentheses ($right_ct)";
-    }
-
-    # output
-    print(">$seqname\n$gapless_seq\n$gapless_ss\n");
-  }
+      if(length($gapless_seq) != length($gapless_ss)) { 
+        die "ERROR problem removing gaps from SS for $seqname, unexpected length " . length($gapless_seq) . " != " . length($gapless_ss) . "\n";
+      }
+      if($left_ct != $right_ct) { 
+        die "ERROR problem with SS for $seqname, num left parentheses ($left_ct) not equal to num right parentheses ($right_ct)";
+      }
+      
+      # output
+      if(! $is_sscons) { 
+        $ss_name = ($do_name) ? ">$seqname-SS\n" : "";
+        print(">$seqname\n$gapless_seq\n$ss_name$gapless_ss\n");
+      }
+      elsif($is_sscons && $do_sscons) { 
+        $ss_name = ($do_name) ? ">SS_cons\n" : "";
+        print("$ss_name$gapless_ss\n");
+      }
+    } # end of 'if(defined $ss)'
+  } # end of 'elsif($line =~ m/^\#=/) {'
 }
 close(IN);
 
