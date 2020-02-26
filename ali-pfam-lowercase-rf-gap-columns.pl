@@ -60,6 +60,7 @@ while($line = <IN>) {
     for($i = 0; $i < scalar(@seq_A); $i++) { 
       if($rf_gap_A[$i]) { 
         $seq_A[$i] =~ tr/A-Z/a-z/; 
+        $seq_A[$i] =~ tr/\-/\./; # convert - to .
       }
     }
     printf("%s%s%s\n", $seqname, $space, join("", @seq_A));
