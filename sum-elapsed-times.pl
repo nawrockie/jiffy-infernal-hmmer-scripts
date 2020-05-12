@@ -18,6 +18,14 @@ while($line = <>) {
       die "ERROR couldn't find Elapsed time on CPU time line: $line";
     }
   }
+  elsif($line =~ /^(\d+\:\d+\:\d+\.\d+)$/) { 
+    $time_ct++;
+    ($hours, $minutes, $seconds) = split(":", $1);
+    $tot_secs += 3600 * $hours;
+    $tot_secs += 60 * $minutes;
+    $tot_secs += $seconds;
+  }
+
 }
 
 printf("$tot_ct lines; $time_ct times; total time: %.2f minutes (avg: %.2f minutes)\n", ($tot_secs/60.), ($tot_secs/60.) / $time_ct);
