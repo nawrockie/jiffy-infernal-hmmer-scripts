@@ -32,7 +32,7 @@ while($line = <TBLOUT>) {
     my $mdlspan = ($mdlto - $mdlfrom) + 1;
     my $mdlfract = $mdlspan / $mdllen_H{$mdlname};
     if($mdlfract >= $fractthresh) { 
-      print $line; 
+      print $line . "\n"; 
     }
   }
 }
