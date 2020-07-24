@@ -126,19 +126,26 @@ while(my $line = <>) {
           }
         }
       }
-      if(length($gapless_seq) != length($gapless_ss)) { 
-        die "ERROR problem removing gaps from SS for $seqname, unexpected length " . length($gapless_seq) . " != " . length($gapless_ss) . "\n";
-      }
-      if($left_ct != $right_ct) { 
-        die "ERROR problem with SS for $seqname, num left parentheses ($left_ct) not equal to num right parentheses ($right_ct)";
-      }
-      
       # output
       if(! $is_sscons) { 
+        # sanity checks:
+        if(length($gapless_seq) != length($gapless_ss)) { 
+          die "ERROR problem removing gaps from SS for $seqname, unexpected length " . length($gapless_seq) . " != " . length($gapless_ss) . "\n";
+        }
+        if($left_ct != $right_ct) { 
+          die "ERROR problem with SS for $seqname, num left parentheses ($left_ct) not equal to num right parentheses ($right_ct)\n";
+        }
         $ss_name = ($do_name) ? ">$seqname-SS\n" : "";
         print(">$seqname\n$gapless_seq\n$ss_name$gapless_ss\n");
       }
       elsif($is_sscons && $do_sscons) { 
+        # sanity checks:
+        if(length($gapless_seq) != length($gapless_ss)) { 
+          die "ERROR problem removing gaps from SS_cons, unexpected length " . length($gapless_seq) . " != " . length($gapless_ss) . "\n";
+        }
+        if($left_ct != $right_ct) { 
+          die "ERROR problem with SS_cons, num left parentheses ($left_ct) not equal to num right parentheses ($right_ct), maybe you want to also use -a?\n";
+        }
         $ss_name = ($do_name) ? ">SS_cons\n" : "";
         print("$ss_name$gapless_ss\n");
       }
@@ -150,11 +157,11 @@ close(IN);
 # sanity check
 foreach $seqname (sort keys %seen_H) { 
   if((! exists $seen_ss_H{$seqname}) || ($seen_ss_H{$seqname} != 1)) { 
-    die "ERROR did not read SS annotation for $seqname"; 
+    die "ERROR did not read SS annotation for $seqname\n"; 
   }
 }
 foreach $seqname (sort keys %seen_ss_H) { 
   if((! exists $seen_H{$seqname}) || ($seen_H{$seqname} != 1)) { 
-    die "ERROR did not read sequence, but did read SS annotation for $seqname"; 
+    die "ERROR did not read sequence, but did read SS annotation for $seqname\n"; 
   }
 }
