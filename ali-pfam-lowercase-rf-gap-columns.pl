@@ -13,14 +13,18 @@ my $usage;
 $usage  = "ali-pfam-lowercase-rf-gap-columns.pl\n\n";
 $usage .= "Usage:\n\n";
 $usage .= "ali-pfam-lowercase-rf-gap-columns.pl <pfam formatted alignment file>\n";
+$usage .= "\tOPTIONS:\n";
+$usage .= "\t\t-s: additionally convert gap RF columns to '.' in individual SS and SS_cons lines [default: do not]\n\n";
 
-#&GetOptions( "a"  => \$opt_a);
+my $opt_s = 0; # set to '1' if -s used
+
+&GetOptions( "s"  => \$opt_s);
 
 if(scalar(@ARGV) != 1) { die $usage; }
 
 my ($aln_file) = (@ARGV);
 
-my %seen_H      = ();    # key is sequence name, used to check to make sure we are in Pfam format
+my %seen_H = ();    # key is sequence name, used to check to make sure we are in Pfam format
 
 open(IN, $aln_file) || die "ERROR unable to open $aln_file"; 
 
@@ -46,7 +50,7 @@ while($line = <IN>) {
 if(! $found_rf) { die "ERROR did not find RF annotation"; }
 close(IN);
 
-# second pass to lowercase gap columns
+# second pass to lowercase RF gap columns in sequences and optionally convert RF gap columns in individual SS and SS_cons lines to '.'
 open(IN, $aln_file) || die "ERROR unable to open $aln_file on second pass"; 
 while($line = <IN>) { 
   chomp $line;
@@ -65,6 +69,28 @@ while($line = <IN>) {
     }
     printf("%s%s%s\n", $seqname, $space, join("", @seq_A));
   }
+  elsif($opt_s) { 
+    if($line =~ /^(\#=GR\s+)(\S+)(\s+SS\s+)(\S+)$/) { 
+      my ($gr, $seqname, $ss_and_space, $ss) = ($1, $2, $3, $4);
+      my @ss_A = split("", $ss);
+      for($i = 0; $i < scalar(@ss_A); $i++) { 
+        if($rf_gap_A[$i]) { 
+          $ss_A[$i] = ".";
+        }
+      }
+      printf("%s%s%s%s\n", $gr, $seqname, $ss_and_space, join("", @ss_A));
+    }
+    elsif($line =~ /^(\#=GC\s+SS\_cons\s+)(\S+)$/) { 
+      my ($gc_sscons_and_space, $ss) = ($1, $2);
+      my @ss_A = split("", $ss);
+      for($i = 0; $i < scalar(@ss_A); $i++) { 
+        if($rf_gap_A[$i]) { 
+          $ss_A[$i] = ".";
+        }
+      }
+      printf("%s%s\n", $gc_sscons_and_space, join("", @ss_A));
+    }
+  } # end of 'elsif($opt_s)'
   else { 
     print $line . "\n";
   }
