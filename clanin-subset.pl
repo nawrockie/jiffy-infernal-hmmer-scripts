@@ -4,6 +4,26 @@
 #                   that are not present in a list of accessions.
 #                        
 # EPN, Fri May 28 13:37:29 2021
+#
+# Directions for use:
+# 1. Download the latest Rfam.clanin and Rfam.cm file from: 
+#   http://ftp.ebi.ac.uk/pub/databases/Rfam/CURRENT/
+#
+#2. Download the clanin-subset.pl script from:
+#   https://raw.githubusercontent.com/nawrockie/jiffy-infernal-hmmer-scripts/master/clanin-subset.pl
+#
+#3. Run cmstat on the Rfam.cm file and save the output
+#   > cmstat Rfam.cm > Rfam.cmstat
+#
+#4. Prepare a list of accessions you are interested in and save in
+#   a file named my.list
+#
+#5. Extract the models from my.list from Rfam.cm into a new CM file:
+#   > cmfetch -f Rfam.cm my.list > my.cm
+#
+#6. Make a new clanin file that pertains to my.cm:
+#   > perl clanin-subset.pl my.list Rfam.cmstat Rfam.clanin > my.clanin
+#
 # 
 #
 use strict;
