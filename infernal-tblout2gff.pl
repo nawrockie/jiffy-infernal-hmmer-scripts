@@ -60,7 +60,7 @@ my $opt_source = undef;    # set to <s> if --source <s> used
              "extra=s"   => \$extra,
              "hidedesc"  => \$do_hidedesc);
 
-if(scalar(@ARGV) != 1) { die $usage; }
+if((scalar(@ARGV) != 1) && (-t STDIN)) { die $usage; }
 my ($tblout_file) = @ARGV;
 
 if(defined $minscore)  { $do_minscore  = 1; }
@@ -84,14 +84,20 @@ if((defined $opt_source) && (defined $version)) {
   die "ERROR, --source and --version are incompatible";
 }
 
-if(! -e $tblout_file) { die "ERROR tblout file $tblout_file does not exist"; }
-if(! -s $tblout_file) { die "ERROR tblout file $tblout_file is empty"; }
+if(-t STDIN){
+  if(! -e $tblout_file) { die "ERROR tblout file $tblout_file does not exist"; }
+  if(! -s $tblout_file) { die "ERROR tblout file $tblout_file is empty"; }
+}
 
 my $source = ($do_cmscan) ? "cmscan" : "cmsearch";
 if(defined $version)    { $source .= "-" . $version; }
 if(defined $opt_source) { $source = $opt_source; }
 
-open(IN, $tblout_file) || die "ERROR unable to open $tblout_file for reading"; 
+if(-t STDIN){
+  open(IN, $tblout_file) || die "ERROR unable to open $tblout_file for reading"; 
+}else{
+  open(IN, "<&=STDIN") || die "ERROR unable to open STDIN for reading"; 
+}
 my $line;
 my $i;
 while($line = <IN>) { 
