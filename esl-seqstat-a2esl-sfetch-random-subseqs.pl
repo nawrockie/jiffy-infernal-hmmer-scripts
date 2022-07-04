@@ -51,6 +51,7 @@ if(! $seen_above_target_len) {
 
 my $i = 0;
 my $tries = 0;
+my %newname_H = (); # used to keep track of new seq names, to avoid dups in output
 while($i < $target_nseq) { 
   $tries++;
   if($tries > (1000 * $target_nseq)) { 
@@ -69,7 +70,11 @@ while($i < $target_nseq) {
     if($start < 1)       { die "ERROR got start ($start) < 1 for $seqname, len $seqlen"; }
     if($stop  > $seqlen) { die "ERROR got stop  ($stop)  > $seqlen for $seqname, len $seqlen"; }
 
-    printf("%s/%d-%d %d %d %s\n", $seqname, $start, $stop, $start, $stop, $seqname);
-    $i++;
+    my $newname = sprintf("%s/%d-%d", $seqname, $start, $stop);
+    if(! defined $newname_H{$newname}) { 
+      printf("%s %d %d %s\n", $newname, $start, $stop, $seqname);
+      $i++;
+      $newname_H{$newname} = 1;
+    }
   }
 }
