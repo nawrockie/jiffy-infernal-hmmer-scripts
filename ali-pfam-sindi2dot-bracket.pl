@@ -18,18 +18,21 @@ $usage .= "\t\t-a: keep sequences in aligned format (do not remove gaps) [defaul
 $usage .= "\t\t-l: do not convert sequences to all uppercase [default: do]\n";
 $usage .= "\t\t-w: leave SS in current format (possibly WUSS)\n";
 $usage .= "\t\t-c: include consensus structure as additional 'sequence' [default: do not]\n";
+$usage .= "\t\t-d: do not include pknots in dot-bracket notation (convert to '.')\n";
 $usage .= "\t\t-n: name individual secondary structures [default: do not]\n";
 
 my $opt_a = 0; # set to '1' if -a used
 my $opt_l = 0; # set to '1' if -l used
 my $opt_w = 0; # set to '1' if -w used
 my $opt_c = 0; # set to '1' if -c used
+my $opt_d = 0; # set to '1' if -d used
 my $opt_n = 0; # set to '1' if -n used
 
 &GetOptions( "a"  => \$opt_a,
              "l"  => \$opt_l,
              "w"  => \$opt_w,
              "c"  => \$opt_c,
+             "d"  => \$opt_d,
              "n"  => \$opt_n);
 
 if(scalar(@ARGV) != 1) { die $usage; }
@@ -41,7 +44,12 @@ my $do_gapless    = ($opt_a) ? 0 : 1;
 my $do_upper      = ($opt_l) ? 0 : 1;
 my $do_dotbracket = ($opt_w) ? 0 : 1;
 my $do_sscons     = ($opt_c) ? 1 : 0;
+my $do_nopknot    = ($opt_d) ? 1 : 0;
 my $do_name       = ($opt_n) ? 1 : 0;
+
+if($do_nopknot && (! $do_dotbracket)) { 
+  die "ERROR -p does not make sense in combintation with -w";
+}
 
 my %seen_H      = ();    # key is sequence name, used to check to make sure we are in Pfam format
 my %seen_ss_H   = ();    # key is sequence name, used to check to make sure we are in Pfam format
@@ -121,6 +129,14 @@ while(my $line = <>) {
             $right_ct++;
             $gapless_ss .= ($do_dotbracket) ? ")" : $ss_A[$i];
           }
+          elsif($ss_A[$i] =~ m/[A-Z]/) { # pknotted bp (left half)
+            $left_ct++;
+            $gapless_ss .= ($do_nopknot) ? "." : $ss_A[$i];
+          }
+          elsif($ss_A[$i] =~ m/[a-z]/) { # pknotted bp (right half)
+            $right_ct++;
+            $gapless_ss .= ($do_nopknot) ? "." : $ss_A[$i];
+          }
           else { 
             $gapless_ss .= ($do_dotbracket) ? "." : $ss_A[$i];
           }
@@ -133,7 +149,7 @@ while(my $line = <>) {
           die "ERROR problem removing gaps from SS for $seqname, unexpected length " . length($gapless_seq) . " != " . length($gapless_ss) . "\n";
         }
         if($left_ct != $right_ct) { 
-          die "ERROR problem with SS for $seqname, num left parentheses ($left_ct) not equal to num right parentheses ($right_ct)\n";
+          die "ERROR problem with SS for $seqname, num left parentheses ($left_ct) not equal to num right parentheses ($right_ct). Did you convert to pfam (e.g. esl-reformat pfam ...)\n";
         }
         $ss_name = ($do_name) ? ">$seqname-SS\n" : "";
         print(">$seqname\n$gapless_seq\n$ss_name$gapless_ss\n");
@@ -144,7 +160,7 @@ while(my $line = <>) {
           die "ERROR problem removing gaps from SS_cons, unexpected length " . length($gapless_seq) . " != " . length($gapless_ss) . "\n";
         }
         if($left_ct != $right_ct) { 
-          die "ERROR problem with SS_cons, num left parentheses ($left_ct) not equal to num right parentheses ($right_ct), maybe you want to also use -a?\n";
+          die "ERROR problem with SS_cons, num left parentheses ($left_ct) not equal to num right parentheses ($right_ct), maybe you want to also use -a, or you did not convert to pfam format (e.g. esl-reformat pfam ...)?\n";
         }
         $ss_name = ($do_name) ? ">SS_cons\n" : "";
         print("$ss_name$gapless_ss\n");
