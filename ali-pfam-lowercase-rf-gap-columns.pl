@@ -42,7 +42,7 @@ while($line = <IN>) {
     my $rf = $1;
     my @rf_A = split("", $rf);
     for($i = 0; $i < scalar(@rf_A); $i++) { 
-      $rf_gap_A[$i] = ($rf_A[$i] =~ m/\w/) ? 0 : 1;
+      $rf_gap_A[$i] = ($rf_A[$i] =~ m/[\.\-\_\~]/) ? 1 : 0; # RF gap characters are: '-', '.', '_' and '~'
     }
     $found_rf = 1;
   }
