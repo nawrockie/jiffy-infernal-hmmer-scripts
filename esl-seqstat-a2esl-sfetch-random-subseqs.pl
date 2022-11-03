@@ -75,7 +75,7 @@ my %newname_H = (); # used to keep track of new seq names, to avoid dups in outp
 while($i < $target_nseq) { 
   $tries++;
   if($tries > (1000 * $target_nseq)) { 
-    die "ERROR unable to efficiently sample seqs, about 99.9% seem to be too short";
+    die "ERROR unable to efficiently sample seqs, about 99.9% seem to be too short, or too many samples with the same name exist";
   }
   my $j = rand($nseq);
   my $seqname = $seqname_A[$j];
