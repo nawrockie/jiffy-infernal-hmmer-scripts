@@ -85,7 +85,7 @@ while(my $line = <>) {
       @seq_A = split("", $seq);
       @notgap_A = ();
       for($i = 0; $i < scalar(@seq_A); $i++) { 
-        if($seq_A[$i] eq "-") { 
+        if($seq_A[$i] =~ m/[\.\-\_\~]/) { 
           $notgap_A[$i] = 0; 
           if(! $do_gapless) { $gapless_seq .= $seq_A[$i]; }
         }
