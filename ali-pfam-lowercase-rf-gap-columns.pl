@@ -15,12 +15,17 @@ $usage .= "Usage:\n\n";
 $usage .= "ali-pfam-lowercase-rf-gap-columns.pl <pfam formatted alignment file>\n";
 $usage .= "\tOPTIONS:\n";
 $usage .= "\t\t-s: additionally convert gap RF columns to '.' in individual SS and SS_cons lines [default: do not]\n\n";
+$usage .= "\t\t-o: *only* convert gap RF columns to '.' in individual SS and SS_cons lines, do not lowercase RF gap columns in each sequence\n\n";
 
 my $opt_s = 0; # set to '1' if -s used
+my $opt_o = 0; # set to '1' if -o used
 
-&GetOptions( "s"  => \$opt_s);
+&GetOptions( "s"  => \$opt_s, 
+             "o"  => \$opt_o);
 
 if(scalar(@ARGV) != 1) { die $usage; }
+
+if($opt_s && $opt_o) { die "ERROR only one of -s and -o can be used"; }
 
 my ($aln_file) = (@ARGV);
 
@@ -67,9 +72,14 @@ while($line = <IN>) {
         $seq_A[$i] =~ tr/\-/\./; # convert - to .
       }
     }
-    printf("%s%s%s\n", $seqname, $space, join("", @seq_A));
+    if(! $opt_o) { 
+      printf("%s%s%s\n", $seqname, $space, join("", @seq_A));
+    }
+    else { # don't modify seq
+      printf("%s%s%s\n", $seqname, $space, $seq);
+    }
   }
-  elsif($opt_s) { 
+  elsif($opt_s || $opt_o) { 
     if($line =~ /^(\#=GR\s+)(\S+)(\s+SS\s+)(\S+)$/) { 
       my ($gr, $seqname, $ss_and_space, $ss) = ($1, $2, $3, $4);
       my @ss_A = split("", $ss);
@@ -89,6 +99,9 @@ while($line = <IN>) {
         }
       }
       printf("%s%s\n", $gc_sscons_and_space, join("", @ss_A));
+    }
+    else { 
+      print $line . "\n";
     }
   } # end of 'elsif($opt_s)'
   else { 
