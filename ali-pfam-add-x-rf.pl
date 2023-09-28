@@ -1,19 +1,20 @@
 #!/usr/bin/env perl
-# EPN, Wed Nov 20 13:34:13 2019
-# ali-pfam-add-blank-sscons.pl
+# EPN, Tue Sep 26 18:05:59 2023
+# ali-pfam-add-x-rf.pl
 #
-# Given a pfam formatted alignment without consensus structure annotation (#=GC SS_cons)
-# add #=GC SS_cons annotation with zero basepairs (all dots '.'s)
+# Given a pfam formatted alignment without RF annotation (#=GC RF)
+# add #=GC RF annotation with every position in the RF annotation 
+# set as 'x'.
 #
 use warnings;
 use strict;
 use Getopt::Long;
 
 my $usage;
-$usage  = "ali-pfam-add-blank-sscons.pl\n\n";
+$usage  = "ali-pfam-add-x-rf.pl\n\n";
 $usage .= "Usage:\n\n";
-$usage .= "Add blank SS_cons to Pfam (1 line Stockholm) formatted alignment:\n";
-$usage .= "ali-pfam-add-blank-sscons.pl <alignment file in Pfam format without SS_cons annotation>\n\n";
+$usage .= "Add RF of all 'x' to Pfam (1 line Stockholm) formatted alignment:\n";
+$usage .= "ali-pfam-add-x-rf.pl <alignment file in Pfam format without RF annotation>\n\n";
 
 my %seen_H = ();
 my $alilen = -1;
@@ -32,10 +33,13 @@ gth is $len:$seq\n"; }
       $alilen = $len;
     }
     if($line =~ /^\/\/$/) { 
-      my $ss_line = ""; 
-      for(my $i = 0; $i < $alilen; $i++) { $ss_line .= "."; }
-      print "#=GC SS_cons $ss_line\n";
+      my $rf_line = "";
+      for(my $i = 0; $i < $alilen; $i++) { $rf_line .= "x"; }
+      print "#=GC RF $rf_line\n";
     }
+  }
+  elsif($line =~ m/^\#=GC RF/) { 
+    die "ERROR alignment already has RF annotation";
   }
   print $line . "\n";
 }
