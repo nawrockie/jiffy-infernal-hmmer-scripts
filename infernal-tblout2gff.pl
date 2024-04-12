@@ -93,7 +93,7 @@ my $source = ($do_cmscan) ? "cmscan" : "cmsearch";
 if(defined $version)    { $source .= "-" . $version; }
 if(defined $opt_source) { $source = $opt_source; }
 
-if(-t STDIN){
+if((-t STDIN) || (-s $tblout_file)) {
   open(IN, $tblout_file) || die "ERROR unable to open $tblout_file for reading"; 
 }else{
   open(IN, "<&=STDIN") || die "ERROR unable to open STDIN for reading"; 
