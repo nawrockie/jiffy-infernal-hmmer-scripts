@@ -12,11 +12,11 @@ $usage .= "\t<'S' or 'E' for bit score or E-value threshold>\n";
 $usage .= "\t<threshold>\n\n";
 $usage .= "\tOPTIONS:\n";
 $usage .= "\t\t--fmt2 : tblout created using --fmt 2 option to cmsearch or cmscan\n";
-if(scalar(@ARGV) != 3) { die $usage; }
 
 my $do_fmt2 = 0;
 &GetOptions( "fmt2" => \$do_fmt2);
 
+if(scalar(@ARGV) != 3) { die $usage; }
 my ($tblout_file, $s_or_e, $thresh) = (@ARGV);
 
 if(($s_or_e ne "S") && ($s_or_e ne "E")) { 
