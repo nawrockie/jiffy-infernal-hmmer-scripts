@@ -5,6 +5,7 @@ use Getopt::Long;
 my $usage = "esl-translate-rename-to-source.pl: rename sequences output from esl-translate\n";
 $usage = "USAGE:\nperl esl-translate-longest-orf.pl <esl-translate output file>";
 $usage .= "\tOPTIONS:\n";
+$usage .= "\t\t-c: include orf coords in new name\n";
 $usage .= "\t\t-o: include orf name in new name\n";
 $usage .= "\t\t-l: include length in new name\n";
 $usage .= "\t\t-f: include frame in new name\n";
