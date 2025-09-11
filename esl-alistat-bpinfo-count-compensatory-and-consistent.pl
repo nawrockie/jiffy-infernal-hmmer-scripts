@@ -48,8 +48,7 @@ my $ncons = 0;
 my $nincons = 0;
 my $nchanges = 0;
 my $i;
-my $total_bps = 0;
-my $total_num_bps = 0;
+my $total_nbp = 0;
 my $total_num_maxbp = 0;
 my $total_ndiff_nt = 0;
 my $total_ndiff_bp = 0;
@@ -69,23 +68,25 @@ while($line = <BPINFO>) {
     if($line =~ m/#\s+lpos/) { 
       if(! $do_total) { 
         # print explanation of columns:
-        print("# extra column  1: '#wc|gu': number of Watson-Crick+GU+UG basepairs\n");
-        print("# extra column  2: '#wc':    number of Watson-Crick basepairs\n");
-        print("# extra column  3: '#gu':    number of GU+UG basepairs\n");
-        print("# extra column  4: 'mc':     identity of most common basepair\n");
-        print("# extra column  5: '#mc':    number of most common basepair\n");
-        print("# extra column  6: '#bp!mc': number of basepairs != most common basepair\n");
-        print("# extra column  6: '#nt!mc': number of nucleotide changes in basepairs != most common basepair\n");
-        print("# extra column  8: 'mcwcgu': 'yes' if most common basepair is WC or GU/UG, else 'no'\n");
-        print("# extra column  9: '#comp':  if 'mcwcgu' is 'yes', number of compensatory nucleotide changes to WC or GU/UG (2 per each mutated basepair), else '-'\n");
-        print("# extra column 10: '#cons':  if 'mcwcgu' is 'yes', number of consistent nucleotide changes to WC or GU/UG (1 per each mutated basepair), else '-'\n");
-        print("# extra column 11: '#incon': if 'mcwcgu' is 'yes', number of inconsistent changes to non-WC/GU/UG (1 or 2 per each mutated basepair), else '-'\n");
+        print("# extra column  1: '#bp':    total number of basepairs\n");
+        print("# extra column  2: '#wc|gu': number of Watson-Crick+GU+UG basepairs\n");
+        print("# extra column  3: '#wc':    number of Watson-Crick basepairs\n");
+        print("# extra column  4: '#gu':    number of GU+UG basepairs\n");
+        print("# extra column  5: 'mc':     identity of most common basepair\n");
+        print("# extra column  6: '#mc':    number of most common basepair\n");
+        print("# extra column  7: '#bp!mc': number of basepairs != most common basepair\n");
+        print("# extra column  8: '#nt!mc': number of nucleotide changes in basepairs != most common basepair\n");
+        print("# extra column  9: 'mcwcgu': 'yes' if most common basepair is WC or GU/UG, else 'no'\n");
+        print("# extra column 10: '#comp':  if 'mcwcgu' is 'yes', number of compensatory nucleotide changes to WC or GU/UG (2 per each mutated basepair), else '-'\n");
+        print("# extra column 11: '#cons':  if 'mcwcgu' is 'yes', number of consistent nucleotide changes to WC or GU/UG (1 per each mutated basepair), else '-'\n");
+        print("# extra column 12: '#incon': if 'mcwcgu' is 'yes', number of inconsistent changes to non-WC/GU/UG (1 or 2 per each mutated basepair), else '-'\n");
+        print("# extra column 13: '#incon': if 'mcwcgu' is 'yes', number of inconsistent changes to non-WC/GU/UG (1 or 2 per each mutated basepair), else '-'\n");
         print("#\n");
         chomp $line;
-        printf("%s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s\n", $line, "#wc|gu", "#wc", "#gu", "mc", "#mc", "#bp!mc", "#nt!mc", "mcwcgu", "#comp", "#cons", "#incon");
+        printf("%s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s\n", $line, "#bp",    "#wc|gu", "#wc", "#gu", "mc", "#mc", "#bp!mc", "#nt!mc", "mcwcgu", "#comp", "#cons", "#incon");
         $line = <BPINFO>;
         chomp $line;
-        printf("%s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s\n", $line, "------", "------", "------", "------", "------", "------", "------", "------", "------", "------", "------");
+        printf("%s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s\n", $line, "------", "------", "------", "------", "------", "------", "------", "------", "------", "------", "------", "------");
       }
     }
     else { 
@@ -104,9 +105,11 @@ while($line = <BPINFO>) {
     my ($lpos, $rpos, $naa, $nac, $nag, $nau, $nca, $ncc, $ncg, $ncu, $nga, $ngc, $ngg, $ngu, $nua, $nuc, $nug, $nuu) = (@el_A);
     my @nbp_A = ($naa, $nac, $nag, $nau, $nca, $ncc, $ncg, $ncu, $nga, $ngc, $ngg, $ngu, $nua, $nuc, $nug, $nuu);
     
-    my $nwc   = 0;
-    $ngu   = 0;
+    my $nbp  = 0;
+    my $nwc  = 0;
+    $ngu  = 0;
     for($i = 0; $i < scalar(@nbp_A); $i++) { 
+      $nbp += $nbp_A[$i];
       $nwc += $iswc_A[$i] * $nbp_A[$i];
       $ngu += $isgu_A[$i] * $nbp_A[$i];
     }
@@ -155,10 +158,8 @@ while($line = <BPINFO>) {
       $nincons = "-";
     }
     if(! $do_total) { 
-      printf("%s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s\n", $orig_line, $nwcgu, $nwc, $ngu, $bp_A[$maxbp], $num_maxbp, $ndiff_bp, $ndiff_nt, ($mcwcgu) ? "yes" : "no", $ncomp, $ncons, $nincons);
+      printf("%s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s\n", $orig_line, $nbp, $nwcgu, $nwc, $ngu, $bp_A[$maxbp], $num_maxbp, $ndiff_bp, $ndiff_nt, ($mcwcgu) ? "yes" : "no", $ncomp, $ncons, $nincons);
     }
-    $total_bps++;
-    $total_num_bps += $num_maxbp + $ndiff_bp;
     $total_num_maxbp += $num_maxbp;
     $total_ndiff_nt += $ndiff_nt;
     $total_ndiff_bp += $ndiff_bp;
@@ -167,6 +168,7 @@ while($line = <BPINFO>) {
       $total_ncons += $ncons;
       $total_nincons += $nincons;
     }
+    $total_nbp   += $nbp;
     $total_nwcgu += $nwcgu;
     $total_nwc += $nwc;
     $total_ngu += $ngu;
@@ -175,17 +177,18 @@ while($line = <BPINFO>) {
 close(BPINFO);
     
 if($do_total) { 
-  print("# column 1: '#wc|gu': number of Watson-Crick+GU+UG basepairs\n");
-  print("# column 2: '#wc':    number of Watson-Crick basepairs\n");
-  print("# column 3: '#gu':    number of GU+UG basepairs\n");
-  print("# column 4: '#mc':    number of most common basepair\n");
-  print("# column 5: '#bp!mc': number of basepairs != most common basepair\n");
-  print("# column 6: '#nt!mc': number of nucleotide changes in basepairs != most common basepair\n");
-  print("# column 7: '#comp':  if 'mcwcgu' is 'yes', number of compensatory nucleotide changes to WC or GU/UG (2 per each mutated basepair), else '-'\n");
-  print("# column 8: '#cons':  if 'mcwcgu' is 'yes', number of consistent nucleotide changes to WC or GU/UG (1 per each mutated basepair), else '-'\n");
-  print("# column 9: '#incon': if 'mcwcgu' is 'yes', number of inconsistent changes to non-WC/GU/UG (1 or 2 per each mutated basepair), else '-'\n");
-  printf("%6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s\n", "#wc|gu", "#wc", "#gu", "#mc", "#bp!mc", "#nt!mc", "#comp", "#cons", "#incon");
-  printf("%6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s\n", $total_nwcgu, $total_nwc, $total_ngu, $total_num_maxbp, $total_ndiff_bp, $total_ndiff_nt, $total_ncomp, $total_ncons, $total_nincons);
+  print("# column 1:  '#bps':   total number of basepairs\n");
+  print("# column 2:  '#wc|gu': number of Watson-Crick+GU+UG basepairs\n");
+  print("# column 3:  '#wc':    number of Watson-Crick basepairs\n");
+  print("# column 4:  '#gu':    number of GU+UG basepairs\n");
+  print("# column 5:  '#mc':    number of most common basepair\n");
+  print("# column 6:  '#bp!mc': number of basepairs != most common basepair\n");
+  print("# column 7:  '#nt!mc': number of nucleotide changes in basepairs != most common basepair\n");
+  print("# column 8:  '#comp':  if 'mcwcgu' is 'yes', number of compensatory nucleotide changes to WC or GU/UG (2 per each mutated basepair), else '-'\n");
+  print("# column 9:  '#cons':  if 'mcwcgu' is 'yes', number of consistent nucleotide changes to WC or GU/UG (1 per each mutated basepair), else '-'\n");
+  print("# column 10: '#incon': if 'mcwcgu' is 'yes', number of inconsistent changes to non-WC/GU/UG (1 or 2 per each mutated basepair), else '-'\n");
+  printf("%6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s\n", "#bp", "#wc|gu", "#wc", "#gu", "#mc", "#bp!mc", "#nt!mc", "#comp", "#cons", "#incon");
+  printf("%6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s  %6s\n", $total_nbp, $total_nwcgu, $total_nwc, $total_ngu, $total_num_maxbp, $total_ndiff_bp, $total_ndiff_nt, $total_ncomp, $total_ncons, $total_nincons);
 }
 
 sub find_max_in_bp_arr { 
