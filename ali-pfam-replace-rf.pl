@@ -105,7 +105,7 @@ $new_rf_line = $rf_prefix . $new_rf_line;
 # second pass to add RF
 open(ALI, $alifile) || die "ERROR unable to open $alifile on second pass"; 
 while($line = <ALI>) { 
-  if($line =~ /^\#=GC\s+RF/) { 
+  if($line =~ /^\#=GC\s+RF\s+/) { 
     print $new_rf_line . "\n";
   }
   else { 
